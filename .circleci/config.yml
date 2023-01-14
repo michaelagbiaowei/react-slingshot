@@ -27,7 +27,7 @@ jobs:
   #   steps:
   #     - run:
   #         command: |
-  #           echo "This job will fail because the specified file path those not exit" > /failed_job/fail.txt
+  #           echo "This job will fail because the specified file path does not exit" > /failed_job/fail.txt
   #     - run:
   #         name: print fail job
   #         command: |

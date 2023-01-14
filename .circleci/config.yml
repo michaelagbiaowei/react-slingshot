@@ -1,0 +1,152 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+commands:
+  print_pipeline_id:
+    description: "This is a reusable command"
+    parameters:
+      to:
+        type: string
+        default: "circle_Workflow_ID"
+    steps:
+      - run: echo ${CIRCLE_WORKFLOW_ID} << parameters.to >>
+
+orbs:
+  # Declare a dependency on the welcome-orb
+  welcome: circleci/welcome-orb@0.4.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  # run_step_on_fail:
+  #   # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+  #   # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - run:
+  #         command: |
+  #           echo "This job will fail because the specified file path those not exit" > /failed_job/fail.txt
+  #     - run:
+  #         name: print fail job
+  #         command: |
+  #           echo "Hello, this job failed!"
+  #         when: on_fail
+
+  circle_Workflow_ID:
+    docker:
+      - image: circleci/node:13.8.0
+    steps: # Add steps to the job || See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - print_pipeline_id
+
+  print_hello:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: "Say hello"
+          command: "echo Hello"
+
+  print_world:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: "Say world"
+          command: "echo World!"
+
+  print_env_name:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: "echo an env var that is part of our project"
+          command: |
+            echo ${MY_ENV_NAME}
+
+  save_print_hello:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run: mkdir -p ~/workspace
+      - run:
+          command: |
+            echo "say hello!" > ~/workspace/hello-output.txt
+      - persist_to_workspace: # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
+          root: ~/workspace
+          paths:
+            - hello-output.txt
+
+  print_hello_output:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - attach_workspace:
+          at: ~/workspace
+      - run: |
+          cat ~/workspace/hello-output.txt
+
+  build:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: buld the node application # npm install is same as [npm i]
+          command: |
+            npm i 
+            npm run lint
+
+  test:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: test the node application
+          command: |
+            npm i 
+            npm run test
+
+  analyse:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: analyse the node application
+          command: |
+            npm audit
+
+workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+  hello-workflow:
+    jobs:
+      # - run_step_on_fail
+      - circle_Workflow_ID
+        # requires:
+        # - run_step_on_fail
+      - print_hello:
+          requires:
+            - circle_Workflow_ID
+      - print_world:
+          requires:
+            - print_hello
+      - print_env_name:
+          requires:
+            - print_world
+      - save_print_hello:
+          requires:
+            - print_env_name
+      - print_hello_output:
+          requires:
+            - save_print_hello
+      - build:
+          requires:
+            - print_hello_output
+      - test:
+          requires:
+            - build
+      - analyse:
+          requires:
+            - test

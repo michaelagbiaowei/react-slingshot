@@ -52,7 +52,7 @@ jobs:
             --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
             --template-body file://template.yml \
             --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM" \
-            --region us-east-1
+            --region=us-east-1
 
   print_hello:
     docker:

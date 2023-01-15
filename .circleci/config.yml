@@ -40,6 +40,18 @@ jobs:
     steps: # Add steps to the job || See: https://circleci.com/docs/2.0/configuration-reference/#steps
       - print_pipeline_id
 
+  create_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          command: |
+            aws cloudformation deploy \
+            --template-file template.yml \
+            --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
+            --region us-east-1
+
   print_hello:
     docker:
       - image: circleci/node:13.8.0
@@ -109,15 +121,15 @@ jobs:
             npm i 
             npm run test
 
-  analyse:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: analyse the node application
-          command: |
-            npm audit
+  # analyse:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: analyse the node application
+  #         command: |
+  #           npm audit
 
 workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/configuration-reference/#workflows
   hello-workflow:
@@ -126,9 +138,12 @@ workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/con
       - circle_Workflow_ID
         # requires:
         # - run_step_on_fail
-      - print_hello:
+      - create_infrastructure:
           requires:
             - circle_Workflow_ID
+      - print_hello:
+          requires:
+            - create_infrastructure
       - print_world:
           requires:
             - print_hello
@@ -147,6 +162,6 @@ workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/con
       - test:
           requires:
             - build
-      - analyse:
-          requires:
-            - test
+      # - analyse:
+      #     requires:
+      #       - test

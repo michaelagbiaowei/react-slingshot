@@ -10,6 +10,7 @@ commands:
         type: string
         default: "circle_Workflow_ID"
     steps:
+      - checkout   
       - run: echo ${CIRCLE_WORKFLOW_ID} << parameters.to >>
 
 orbs:
@@ -25,6 +26,7 @@ jobs:
   #   docker:
   #     - image: circleci/node:13.8.0
   #   steps:
+  #     - checkout
   #     - run:
   #         command: |
   #           echo "This job will fail because the specified file path does not exit" > /failed_job/fail.txt
@@ -38,6 +40,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps: # Add steps to the job || See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - checkout
       - print_pipeline_id
 
   create_infrastructure:
@@ -47,12 +50,13 @@ jobs:
       - checkout
       - run:
           command: |
-            aws cloudformation delete-stack --stack-name  myStack-${CIRCLE_WORKFLOW_ID} --region=us-east-1
+            aws cloudformation create-stack --stack-name  myStack-${CIRCLE_WORKFLOW_ID} --template-body file://template.yml --region us-east-1
 
   print_hello:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
       - run:
           name: "Say hello"
           command: "echo Hello"
@@ -61,6 +65,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
       - run:
           name: "Say world"
           command: "echo World!"
@@ -69,6 +74,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
       - run:
           name: "echo an env var that is part of our project"
           command: |
@@ -78,6 +84,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
       - run: mkdir -p ~/workspace
       - run:
           command: |
@@ -91,6 +98,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
       - attach_workspace:
           at: ~/workspace
       - run: |

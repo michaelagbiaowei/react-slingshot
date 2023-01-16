@@ -50,9 +50,8 @@ jobs:
       - checkout
       - run:
           command: |
-            aws cloudformation create-stack \
+            aws cloudformation delete-stack \
             --stack-name  myStack-${CIRCLE_WORKFLOW_ID} \
-            --template-body file://template.yml \
             --region=us-east-1 
   print_hello:
     docker:

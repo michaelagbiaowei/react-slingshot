@@ -50,9 +50,10 @@ jobs:
       - checkout
       - run:
           command: |
-            aws cloudformation delete-stack \
-            --stack-name  myStack-${CIRCLE_WORKFLOW_ID} \
-            --region=us-east-1 
+            aws cloudformation deploy \
+            --template-file template.yml \
+            --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
+            --region us-east-1 
   print_hello:
     docker:
       - image: circleci/node:13.8.0

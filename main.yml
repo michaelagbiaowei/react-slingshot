@@ -1,0 +1,6 @@
+---
+- name: "install and setup apache2 web server"
+  hosts: all
+  become: true
+  roles:
+    - setup

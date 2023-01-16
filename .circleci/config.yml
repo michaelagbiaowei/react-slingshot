@@ -4,7 +4,7 @@ version: 2.1
 
 commands:
   print_pipeline_id:
-    description: "This is a reusable command"
+    description: "This is a re-usable command"
     parameters:
       to:
         type: string

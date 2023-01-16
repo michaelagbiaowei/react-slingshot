@@ -45,7 +45,7 @@ jobs:
 
   create_infrastructure:
     docker:
-      - image: amazon/aws-cli #aws cli
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:

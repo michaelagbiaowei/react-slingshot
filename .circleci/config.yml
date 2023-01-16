@@ -49,15 +49,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install tar utility
           command: |
-            yum install -y gzip tar
-      - run:
-          command: |
-            aws cloudformation deploy \
-            --template-file template.yml \
-            --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
-            --region us-east-1
+            aws cloudformation create-stack \
+            --stack-name  myStack-${CIRCLE_WORKFLOW_ID} \
+            --template-body file://template.yml \
+            --region=us-east-1 
   print_hello:
     docker:
       - image: circleci/node:13.8.0

@@ -51,8 +51,8 @@ jobs:
       - run:
           command: |
             aws cloudformation deploy \
-            --template-file template.yml \
             --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
+            --template-file template.yml \
             --region us-east-1
   print_hello:
     docker:

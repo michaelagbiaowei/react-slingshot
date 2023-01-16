@@ -10,12 +10,12 @@ commands:
         type: string
         default: "circle_Workflow_ID"
     steps:
-      - checkout   
+      - checkout
       - run: echo ${CIRCLE_WORKFLOW_ID} << parameters.to >>
 
 orbs:
   # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
+  welcome: circleci/aws-cli@2.0.3
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -50,8 +50,10 @@ jobs:
       - checkout
       - run:
           command: |
-            aws cloudformation deploy --template-file template.yml --stack-name myStack-${CIRCLE_WORKFLOW_ID} --region=us-east-1
-
+            aws cloudformation deploy \
+            --template-file template.yml \
+            --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
+            --region us-east-1
   print_hello:
     docker:
       - image: circleci/node:13.8.0

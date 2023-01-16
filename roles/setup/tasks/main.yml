@@ -1,7 +1,5 @@
 ---
 # tasks file for setup
-
----
 - name: "update apt packages."
   become: yes
   apt:

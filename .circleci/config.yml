@@ -55,107 +55,107 @@ jobs:
             --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
             --region us-east-1
 
-  # Exercise: Config and Deployment
-  configure_infrastructure:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          # You can get this ID in the section where you registered the SSH Key
-          fingerprints: ["e5:37:dc:89:4d:80:4e:8f:cd:39:d8:de:d9:bd:39:7a"]
-      - run:
-          name: Install Ansible #install ansible
-          command: |
-            apk add --update ansible
-      - run:
-          name: Run Playbook and Configure server
-          command: |
-            ansible-playbook -i inventory.txt main.yml
+#   # Exercise: Config and Deployment
+#   configure_infrastructure:
+#     docker:
+#       - image: python:3.7-alpine3.11
+#     steps:
+#       - checkout
+#       - add_ssh_keys:
+#           # You can get this ID in the section where you registered the SSH Key
+#           fingerprints: ["e5:37:dc:89:4d:80:4e:8f:cd:39:d8:de:d9:bd:39:7a"]
+#       - run:
+#           name: Install Ansible #install ansible
+#           command: |
+#             apk add --update ansible
+#       - run:
+#           name: Run Playbook and Configure server
+#           command: |
+#             ansible-playbook -i inventory.txt main.yml
 
-  print_hello:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello"
+#   print_hello:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: "Say hello"
+#           command: "echo Hello"
 
-  print_world:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: "Say world"
-          command: "echo World!"
+#   print_world:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: "Say world"
+#           command: "echo World!"
 
-  print_env_name:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: "echo an env var that is part of our project"
-          command: |
-            echo ${MY_ENV_NAME}
+#   print_env_name:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: "echo an env var that is part of our project"
+#           command: |
+#             echo ${MY_ENV_NAME}
 
-  save_print_hello:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run: mkdir -p ~/workspace
-      - run:
-          command: |
-            echo "say hello!" > ~/workspace/hello-output.txt
-      - persist_to_workspace: # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
-          root: ~/workspace
-          paths:
-            - hello-output.txt
+#   save_print_hello:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - run: mkdir -p ~/workspace
+#       - run:
+#           command: |
+#             echo "say hello!" > ~/workspace/hello-output.txt
+#       - persist_to_workspace: # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
+#           root: ~/workspace
+#           paths:
+#             - hello-output.txt
 
-  print_hello_output:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/workspace
-      - run: |
-          cat ~/workspace/hello-output.txt
+#   print_hello_output:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - attach_workspace:
+#           at: ~/workspace
+#       - run: |
+#           cat ~/workspace/hello-output.txt
 
-  build:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: buld the node application # npm install is same as [npm i]
-          command: |
-            npm i 
-            npm run lint
+#   build:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: buld the node application # npm install is same as [npm i]
+#           command: |
+#             npm i
+#             npm run lint
 
-  test:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: test the node application
-          command: |
-            npm i 
-            npm run test
+#   test:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: test the node application
+#           command: |
+#             npm i
+#             npm run test
 
-  # analyse:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: analyse the node application
-  #         command: |
-  #           npm audit
+#   # analyse:
+#   #   docker:
+#   #     - image: circleci/node:13.8.0
+#   #   steps:
+#   #     - checkout
+#   #     - run:
+#   #         name: analyse the node application
+#   #         command: |
+#   #           npm audit
 
 workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/configuration-reference/#workflows
   hello-workflow:
@@ -167,30 +167,30 @@ workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/con
       - create_infrastructure:
           requires:
             - circle_Workflow_ID
-      - configure_infrastructure:
-          requires:
-            - create_infrastructure
-      - print_hello:
-          requires:
-            - configure_infrastructure
-      - print_world:
-          requires:
-            - print_hello
-      - print_env_name:
-          requires:
-            - print_world
-      - save_print_hello:
-          requires:
-            - print_env_name
-      - print_hello_output:
-          requires:
-            - save_print_hello
-      - build:
-          requires:
-            - print_hello_output
-      - test:
-          requires:
-            - build
-      # - analyse:
-      #     requires:
-      #       - test
+#       - configure_infrastructure:
+#           requires:
+#             - create_infrastructure
+#       - print_hello:
+#           requires:
+#             - configure_infrastructure
+#       - print_world:
+#           requires:
+#             - print_hello
+#       - print_env_name:
+#           requires:
+#             - print_world
+#       - save_print_hello:
+#           requires:
+#             - print_env_name
+#       - print_hello_output:
+#           requires:
+#             - save_print_hello
+#       - build:
+#           requires:
+#             - print_hello_output
+#       - test:
+#           requires:
+#             - build
+#       # - analyse:
+#       #     requires:
+#       #       - test

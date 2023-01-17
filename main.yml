@@ -1,5 +1,5 @@
 - name: "install and setup apache2 web server"
-  hosts: 52.3.251.8
+  hosts: all
   user: ubuntu
   become: true
   become_method: sudo

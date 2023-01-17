@@ -53,7 +53,26 @@ jobs:
             aws cloudformation deploy \
             --template-file template.yml \
             --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
-            --region us-east-1 
+            --region us-east-1
+
+  # Exercise: Config and Deployment
+  configure_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["e5:37:dc:89:4d:80:4e:8f:cd:39:d8:de:d9:bd:39:7a"]
+      - run:
+          name: Install Ansible #install ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: |
+            ansible-playbook -i inventory.txt main.yml
+
   print_hello:
     docker:
       - image: circleci/node:13.8.0
@@ -148,9 +167,12 @@ workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/con
       - create_infrastructure:
           requires:
             - circle_Workflow_ID
-      - print_hello:
+      - configure_infrastructure:
           requires:
             - create_infrastructure
+      - print_hello:
+          requires:
+            - configure_infrastructure
       - print_world:
           requires:
             - print_hello

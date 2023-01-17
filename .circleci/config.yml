@@ -36,42 +36,42 @@ jobs:
   #           echo "Hello, this job failed!"
   #         when: on_fail
 
-  circle_Workflow_ID:
-    docker:
-      - image: circleci/node:13.8.0
-    steps: # Add steps to the job || See: https://circleci.com/docs/2.0/configuration-reference/#steps
-      - checkout
-      - print_pipeline_id
+  # circle_Workflow_ID:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps: # Add steps to the job || See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  #     - checkout
+  #     - print_pipeline_id
 
-  create_infrastructure:
+  # create_infrastructure:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         command: |
+  #           aws cloudformation deploy \
+  #           --template-file template.yml \
+  #           --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
+  #           --region us-east-1
+
+  # Exercise: Config and Deployment
+  configure_infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - add_ssh_keys:
+          # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["e5:37:dc:89:4d:80:4e:8f:cd:39:d8:de:d9:bd:39:7a"]
       - run:
+          name: Install Ansible #install ansible
           command: |
-            aws cloudformation deploy \
-            --template-file template.yml \
-            --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
-            --region us-east-1
-
-#   # Exercise: Config and Deployment
-#   configure_infrastructure:
-#     docker:
-#       - image: python:3.7-alpine3.11
-#     steps:
-#       - checkout
-#       - add_ssh_keys:
-#           # You can get this ID in the section where you registered the SSH Key
-#           fingerprints: ["e5:37:dc:89:4d:80:4e:8f:cd:39:d8:de:d9:bd:39:7a"]
-#       - run:
-#           name: Install Ansible #install ansible
-#           command: |
-#             apk add --update ansible
-#       - run:
-#           name: Run Playbook and Configure server
-#           command: |
-#             ansible-playbook -i inventory.txt main.yml
+            apk add --update ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: |
+            ansible-playbook -i inventory.txt main.yml
 
 #   print_hello:
 #     docker:
@@ -161,36 +161,36 @@ workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/con
   hello-workflow:
     jobs:
       # - run_step_on_fail
-      - circle_Workflow_ID
+      # - circle_Workflow_ID
+      #   # requires:
+      #   # - run_step_on_fail
+      # - create_infrastructure:
+      #     requires:
+      #       - circle_Workflow_ID
+      - configure_infrastructure
         # requires:
-        # - run_step_on_fail
-      - create_infrastructure:
-          requires:
-            - circle_Workflow_ID
-#       - configure_infrastructure:
-#           requires:
-#             - create_infrastructure
-#       - print_hello:
-#           requires:
-#             - configure_infrastructure
-#       - print_world:
-#           requires:
-#             - print_hello
-#       - print_env_name:
-#           requires:
-#             - print_world
-#       - save_print_hello:
-#           requires:
-#             - print_env_name
-#       - print_hello_output:
-#           requires:
-#             - save_print_hello
-#       - build:
-#           requires:
-#             - print_hello_output
-#       - test:
-#           requires:
-#             - build
-#       # - analyse:
-#       #     requires:
-#       #       - test
+        #   - create_infrastructure
+      # - print_hello:
+      #     requires:
+      #       - configure_infrastructure
+      # - print_world:
+      #     requires:
+      #       - print_hello
+      # - print_env_name:
+      #     requires:
+      #       - print_world
+      # - save_print_hello:
+      #     requires:
+      #       - print_env_name
+      # - print_hello_output:
+      #     requires:
+      #       - save_print_hello
+      # - build:
+      #     requires:
+      #       - print_hello_output
+      # - test:
+      #     requires:
+      #       - build
+      # - analyse:
+      #     requires:
+      #       - test

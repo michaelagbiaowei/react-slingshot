@@ -1,5 +1,3 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
 commands:
@@ -14,162 +12,155 @@ commands:
       - run: echo ${CIRCLE_WORKFLOW_ID} << parameters.to >>
 
 orbs:
-  # Declare a dependency on the welcome-orb
   welcome: circleci/aws-cli@2.0.3
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  # run_step_on_fail:
-  #   # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-  #   # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         command: |
-  #           echo "This job will fail because the specified file path does not exit" > /failed_job/fail.txt
-  #     - run:
-  #         name: print fail job
-  #         command: |
-  #           echo "Hello, this job failed!"
-  #         when: on_fail
+  run_step_on_fail:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          command: |
+            echo "This job will fail because the specified file path does not exit" > /failed_job/fail.txt
+      - run:
+          name: print fail job
+          command: |
+            echo "Hello, this job failed!"
+          when: on_fail
 
-  # circle_Workflow_ID:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps: # Add steps to the job || See: https://circleci.com/docs/2.0/configuration-reference/#steps
-  #     - checkout
-  #     - print_pipeline_id
+  circle_Workflow_ID:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - print_pipeline_id
 
-  # create_infrastructure:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         command: |
-  #           aws cloudformation deploy \
-  #           --template-file template.yml \
-  #           --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
-  #           --region us-east-1
-
-  # Exercise: Config and Deployment
+  create_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          command: |
+            aws cloudformation deploy \
+            --template-file template.yml \
+            --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
+            --region us-east-1
 
   configure_infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.9.16-alpine3.17
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["e5:37:dc:89:4d:80:4e:8f:cd:39:d8:de:d9:bd:39:7a"]
+          fingerprints: ["15:71:24:06:04:09:fb:98:a5:85:17:31:e3:40:8b:03"]
       - run:
-          name: Install Ansible #install ansible
+          name: Install Ansible
           command: |
             apk add --update ansible
       - run:
-          name: Run Playbook and Configure server #run playbook
+          name: Run Playbook and Configure server
           command: |
             ansible-playbook -i inventory.txt main.yml
 
-#   print_hello:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run:
-#           name: "Say hello"
-#           command: "echo Hello"
+  print_hello:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: "echo Hello"
 
-#   print_world:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run:
-#           name: "Say world"
-#           command: "echo World!"
+  print_world:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: "Say world"
+          command: "echo World!"
 
-#   print_env_name:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run:
-#           name: "echo an env var that is part of our project"
-#           command: |
-#             echo ${MY_ENV_NAME}
+  print_env_name:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: "echo an env var that is part of our project"
+          command: |
+            echo ${MY_ENV_NAME}
 
-#   save_print_hello:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run: mkdir -p ~/workspace
-#       - run:
-#           command: |
-#             echo "say hello!" > ~/workspace/hello-output.txt
-#       - persist_to_workspace: # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
-#           root: ~/workspace
-#           paths:
-#             - hello-output.txt
+  save_print_hello:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: mkdir -p ~/workspace
+      - run:
+          command: |
+            echo "say hello!" > ~/workspace/hello-output.txt
+      - persist_to_workspace:
+          root: ~/workspace
+          paths:
+            - hello-output.txt
 
-#   print_hello_output:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - attach_workspace:
-#           at: ~/workspace
-#       - run: |
-#           cat ~/workspace/hello-output.txt
+  print_hello_output:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/workspace
+      - run: |
+          cat ~/workspace/hello-output.txt
 
-#   build:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run:
-#           name: buld the node application # npm install is same as [npm i]
-#           command: |
-#             npm i
-#             npm run lint
+  build:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: buld the node application
+          command: |
+            npm i
+            npm run lint
 
-#   test:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run:
-#           name: test the node application
-#           command: |
-#             npm i
-#             npm run test
+  test:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: test the node application
+          command: |
+            npm i
+            npm run test
 
-#   # analyse:
-#   #   docker:
-#   #     - image: circleci/node:13.8.0
-#   #   steps:
-#   #     - checkout
-#   #     - run:
-#   #         name: analyse the node application
-#   #         command: |
-#   #           npm audit
+  analyse:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: analyse the node application
+          command: |
+            npm audit
 
-workflows: # Invoke jobs via workflows || See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
   hello-workflow:
     jobs:
       # - run_step_on_fail
-      # - circle_Workflow_ID
-      #   # requires:
-      #   # - run_step_on_fail
-      # - create_infrastructure:
-      #     requires:
-      #       - circle_Workflow_ID
-      - configure_infrastructure
+      - circle_Workflow_ID
         # requires:
-        #   - create_infrastructure
+        # - run_step_on_fail
+      - create_infrastructure:
+          requires:
+            - circle_Workflow_ID
+      # - configure_infrastructure
+      # requires:
+      #   - create_infrastructure
       # - print_hello:
       #     requires:
       #       - configure_infrastructure

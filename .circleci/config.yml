@@ -54,14 +54,6 @@ jobs:
   #           --template-file template.yml \
   #           --stack-name myStack-${CIRCLE_WORKFLOW_ID} \
   #           --region us-east-1
-  automate_PUB_IP:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          command: |
-            
 
   # Exercise: Config and Deployment
 

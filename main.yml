@@ -1,16 +1,6 @@
-- name: "configuration play."
+- name: "install and setup apache2 web server"
   hosts: 52.3.251.8
   user: ubuntu
   become: true
-  gather_facts: false
-  vars:
-    - ansible_python_interpreter: /usr/bin/python3
-    - ansible_host_key_checking: false
-    - ansible_stdout_callback: yaml
-
-  pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
-      wait_for_connection:
-
   roles:
     - setup

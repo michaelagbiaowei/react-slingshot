@@ -1,1 +1,3 @@
-server ansible_host=52.3.251.8 ansible_connection=ssh ansible_user=ubuntu
+[remote]
+52.3.251.8
+ansible_connection=ssh ansible_user=ubuntu

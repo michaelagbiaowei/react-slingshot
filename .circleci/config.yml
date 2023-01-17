@@ -71,7 +71,7 @@ jobs:
       - run:
           name: Run Playbook and Configure server #run playbook
           command: |
-            ansible-playbook -i inventory.txt main.yml
+            ansible-playbook -i inventory.txt main.yml -vvv
 
 #   print_hello:
 #     docker:

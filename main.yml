@@ -2,5 +2,7 @@
   hosts: 52.3.251.8
   user: ubuntu
   become: true
+  become_method: sudo
+  become_user: root
   roles:
     - setup

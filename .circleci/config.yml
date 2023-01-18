@@ -113,10 +113,12 @@ jobs:
       - run:
           name: Execute bucket.yml - Create Cloudformation Stack
           command: |
+
             aws cloudformation deploy \
             --template-file bucket.yml \
-            --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID} \
+            --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID}
             --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID}"
+            --region us-east-1
 
   get_last_deployment_id:
     docker:

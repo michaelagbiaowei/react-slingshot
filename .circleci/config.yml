@@ -259,7 +259,6 @@ jobs:
 workflows:
   hello-workflow:
     jobs:
-      # - run_step_on_fail
       # - circle_Workflow_ID:
       #     requires:
       #       - run_step_on_fail
@@ -275,12 +274,12 @@ workflows:
       # - roll_back:
       #     requires:
       #       - smoke_test
-      - create_and_deploy_front_end
-      - promote_to_production:
-          requires:
-            - create_and_deploy_front_end
-      - get_last_deployment_id
-      - clean_up_old_front_end:
-          requires:
-            - get_last_deployment_id
-            - promote_to_production
+      # - create_and_deploy_front_end
+      # - promote_to_production:
+      #     requires:
+      #       - create_and_deploy_front_end
+      # - get_last_deployment_id
+      # - clean_up_old_front_end:
+      #     requires:
+      #       - get_last_deployment_id
+      #       - promote_to_production

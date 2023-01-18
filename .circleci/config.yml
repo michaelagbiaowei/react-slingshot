@@ -11,6 +11,19 @@ commands:
       - checkout
       - run: echo ${CIRCLE_WORKFLOW_ID} << parameters.to >>
 
+  destroy_environment:
+    description: "This is a re-usable command to destroy production environment when a job fails"
+    parameters:
+      to:
+        type: string
+        default: "environment is destoryed"
+    steps:
+      - checkout
+      - run:
+          name: destory environment
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID}
+
 orbs:
   welcome: circleci/aws-cli@2.0.3
 
@@ -68,18 +81,75 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
+      - checkout
       - run: apk add --update curl
       - run:
           name: run smoke test
           command: |
             URL="https://blog.udacity.com/"
-            # Test if website exists
             if curl -s --head ${URL}
             then
               return 0
             else
               return 1
             fi
+
+  roll_back:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: stimulate error # cause the job to fail
+          command: |
+            return 1
+      - destroy_environment
+    when: on_fail
+
+  create_and_deploy_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - run:
+          name: Execute bucket.yml - Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+            --template-file cloudfront/bucket.yml \
+            --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID} \
+            --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID}"
+
+  get_last_deployment_id:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+            --no-paginate --output text > ~/textfile.txt
+
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - textfile.txt
+
+  clean_up_old_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Destroy the previous S3 bucket and CloudFormation stack.
+          # Use $OldBucketID environment variable or mybucket644752792305 below.
+          # Similarly, you can create and use $OldStackID environment variable in place of production-distro
+          command: |
+            export OldBucketID=$(cat ~/textfile.txt)
+            aws s3 rm "s3://my-circle-bucket" --recursive
 
   print_hello:
     docker:
@@ -169,13 +239,27 @@ workflows:
   hello-workflow:
     jobs:
       # - run_step_on_fail
-      # - circle_Workflow_ID
-      # requires:
-      # - run_step_on_fail
+      # - circle_Workflow_ID:
+      #     requires:
+      #       - run_step_on_fail
       # - create_infrastructure:
       #     requires:
       #       - circle_Workflow_ID
-      # - configure_infrastructure
-      # requires:
-      #   - create_infrastructure
-      - smoke_test
+      # - configure_infrastructure:
+      #     requires:
+      #       - create_infrastructure
+      # - smoke_test:
+      #     requires:
+      #       - configure_infrastructure
+      # - roll_back:
+      #     requires:
+      #       - smoke_test
+      - create_and_deploy_front_end
+      - promote_to_production:
+          requires:
+            - create_and_deploy_front_end
+      - get_last_deployment_id
+      - clean_up_old_front_end:
+          requires:
+            - get_last_deployment_id
+            - promote_to_production

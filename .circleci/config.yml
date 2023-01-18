@@ -149,7 +149,7 @@ jobs:
           name: Execute cloudfront.yml
           command: |
             aws cloudformation deploy \
-            --template-file cloudfront/cloudfront.yml \
+            --template-file cloudfront.yml \
             --stack-name production-distro \
             --parameter-overrides PipelineID="my-circle-bucket-${CIRCLE_WORKFLOW_ID}"
 

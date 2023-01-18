@@ -123,6 +123,8 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
           command: |
@@ -153,10 +155,10 @@ jobs:
   clean_up_old_front_end:
     docker:
       - image: amazon/aws-cli
-    attach_workspace:
-      at: ~/
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install tar utility
           command: |

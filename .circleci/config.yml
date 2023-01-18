@@ -113,7 +113,6 @@ jobs:
       - run:
           name: Execute bucket.yml - Create Cloudformation Stack
           command: |
-
             aws cloudformation deploy \
             --template-file bucket.yml \
             --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID}

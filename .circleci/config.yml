@@ -110,6 +110,7 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
+      - checkout
       - run:
           name: Execute new-bucket.yml - Create Cloudformation Stack
           command: |

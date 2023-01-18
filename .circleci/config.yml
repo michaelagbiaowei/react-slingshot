@@ -111,10 +111,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - run:
-          name: Execute bucket.yml - Create Cloudformation Stack
+          name: Execute new-bucket.yml - Create Cloudformation Stack
           command: |
             aws cloudformation deploy \
-            --template-file file://bucket.yml \
+            --template-file new-bucket.yml \
             --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID}
             --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID}"
             --region us-east-1
